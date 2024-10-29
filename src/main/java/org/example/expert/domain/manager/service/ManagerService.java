@@ -12,7 +12,6 @@ import org.example.expert.domain.manager.entity.Manager;
 import org.example.expert.domain.manager.repository.ManagerRepository;
 import org.example.expert.domain.todo.entity.Todo;
 import org.example.expert.domain.todo.repository.TodoRepository;
-import org.example.expert.domain.user.dto.response.UserResponse;
 import org.example.expert.domain.user.entity.User;
 import org.example.expert.domain.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -31,10 +30,9 @@ public class ManagerService {
     @Transactional
     public ManagerSaveResponse saveManager(AuthUser authUser, long todoId,
         ManagerSaveRequest managerSaveRequest) {
-        // 일정을 만든 유저
+
         User user = User.fromAuthUser(authUser);
-        Todo todo = todoRepository.findById(todoId)
-            .orElseThrow(() -> new InvalidRequestException("Todo not found"));
+        Todo todo = todoRepository.findByTodoId(todoId);
 
         if (!ObjectUtils.nullSafeEquals(user.getId(), todo.getUser().getId())) {
             throw new InvalidRequestException("담당자를 등록하려고 하는 유저가 일정을 만든 유저가 유효하지 않습니다.");
@@ -47,39 +45,27 @@ public class ManagerService {
             throw new InvalidRequestException("일정 작성자는 본인을 담당자로 등록할 수 없습니다.");
         }
 
-        Manager newManagerUser = new Manager(managerUser, todo);
-        Manager savedManagerUser = managerRepository.save(newManagerUser);
+        Manager savedManagerUser = managerRepository.save(new Manager(managerUser, todo));
 
-        return new ManagerSaveResponse(
-            savedManagerUser.getId(),
-            new UserResponse(managerUser.getId(), managerUser.getEmail())
-        );
+        return new ManagerSaveResponse(savedManagerUser);
     }
 
     public List<ManagerResponse> getManagers(long todoId) {
-        Todo todo = todoRepository.findById(todoId)
-            .orElseThrow(() -> new InvalidRequestException("Todo not found"));
+        Todo todo = todoRepository.findByTodoId(todoId);
 
         List<Manager> managerList = managerRepository.findByTodoIdWithUser(todo.getId());
 
         List<ManagerResponse> dtoList = new ArrayList<>();
         for (Manager manager : managerList) {
-            User user = manager.getUser();
-            dtoList.add(new ManagerResponse(
-                manager.getId(),
-                new UserResponse(user.getId(), user.getEmail())
-            ));
+            dtoList.add(new ManagerResponse(manager));
         }
         return dtoList;
     }
 
     @Transactional
     public void deleteManager(long userId, long todoId, long managerId) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new InvalidRequestException("User not found"));
-
-        Todo todo = todoRepository.findById(todoId)
-            .orElseThrow(() -> new InvalidRequestException("Todo not found"));
+        User user = userRepository.findByUserId(userId);
+        Todo todo = todoRepository.findByTodoId(todoId);
 
         if (todo.getUser() == null || !ObjectUtils.nullSafeEquals(user.getId(),
             todo.getUser().getId())) {

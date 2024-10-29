@@ -33,16 +33,15 @@ public class AuthService {
 
         UserRole userRole = UserRole.of(signupRequest.getUserRole());
 
-        User newUser = new User(
-            signupRequest.getEmail(),
-            encodedPassword,
-            userRole
+        User savedUser = userRepository.save(
+            new User(
+                signupRequest.getEmail(),
+                encodedPassword,
+                userRole
+            )
         );
-        User savedUser = userRepository.save(newUser);
 
-        String bearerToken = jwtUtil.createToken(savedUser.getId(), savedUser.getEmail(), userRole);
-
-        return new SignUpResponse(bearerToken);
+        return new SignUpResponse(createToken(savedUser));
     }
 
     public SignInResponse signin(SignInRequest signinRequest) {
@@ -53,9 +52,10 @@ public class AuthService {
         if (!passwordEncoder.matches(signinRequest.getPassword(), user.getPassword())) {
             throw new AuthException("잘못된 비밀번호입니다.");
         }
+        return new SignInResponse(createToken(user));
+    }
 
-        String bearerToken = jwtUtil.createToken(user.getId(), user.getEmail(), user.getUserRole());
-
-        return new SignInResponse(bearerToken);
+    private String createToken(User user) {
+        return jwtUtil.createToken(user.getId(), user.getEmail(), user.getUserRole());
     }
 }
