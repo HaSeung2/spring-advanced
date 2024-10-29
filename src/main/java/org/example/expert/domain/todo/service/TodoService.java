@@ -30,13 +30,13 @@ public class TodoService {
 
         String weather = weatherClient.getTodayWeather();
 
-        Todo newTodo = new Todo(
-            todoSaveRequest.getTitle(),
-            todoSaveRequest.getContents(),
-            weather,
-            user
-        );
-        Todo savedTodo = todoRepository.save(newTodo);
+        Todo savedTodo = todoRepository.save(
+            new Todo(
+                todoSaveRequest.getTitle(),
+                todoSaveRequest.getContents(),
+                weather,
+                user
+            ));
 
         return new TodoSaveResponse(savedTodo);
     }
