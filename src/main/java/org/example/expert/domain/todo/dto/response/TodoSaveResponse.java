@@ -12,7 +12,8 @@ public class TodoSaveResponse {
     private final String weather;
     private final UserResponse user;
 
-    public TodoSaveResponse(Long id, String title, String contents, String weather, UserResponse user) {
+    public TodoSaveResponse(Long id, String title, String contents, String weather,
+        UserResponse user) {
         this.id = id;
         this.title = title;
         this.contents = contents;
