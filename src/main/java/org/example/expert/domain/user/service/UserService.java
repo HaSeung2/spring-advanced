@@ -20,7 +20,7 @@ public class UserService {
 
     public UserResponse getUser(long userId) {
         User user = userRepository.findByUserId(userId);
-        return new UserResponse(user.getId(), user.getEmail());
+        return new UserResponse(user);
     }
 
     @Transactional
