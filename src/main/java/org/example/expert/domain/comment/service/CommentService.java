@@ -9,6 +9,7 @@ import org.example.expert.domain.comment.dto.response.CommentSaveResponse;
 import org.example.expert.domain.comment.entity.Comment;
 import org.example.expert.domain.comment.repository.CommentRepository;
 import org.example.expert.domain.common.dto.AuthUser;
+import org.example.expert.domain.common.exception.InvalidRequestException;
 import org.example.expert.domain.todo.entity.Todo;
 import org.example.expert.domain.todo.repository.TodoRepository;
 import org.example.expert.domain.user.entity.User;
@@ -30,10 +31,8 @@ public class CommentService {
         CommentSaveRequest commentSaveRequest
     ) {
         User user = User.fromAuthUser(authUser);
-        Todo todo = todoRepository.findByTodoId(todoId);
-//              테스트 용
-//        Todo todo = todoRepository.findById(todoId)
-//            .orElseThrow(() -> new InvalidRequestException("Todo not found"));
+        Todo todo = todoRepository.findById(todoId)
+            .orElseThrow(() -> new InvalidRequestException("Todo not found"));
 
         Comment savedComment = commentRepository.save(
             new Comment(commentSaveRequest.getContents(), user, todo)

@@ -32,7 +32,7 @@ public class ManagerService {
         ManagerSaveRequest managerSaveRequest) {
 
         User user = User.fromAuthUser(authUser);
-        
+
         Todo todo = todoRepository.findById(todoId)
             .orElseThrow(() -> new InvalidRequestException("Todo not found"));
 
@@ -53,11 +53,8 @@ public class ManagerService {
     }
 
     public List<ManagerResponse> getManagers(long todoId) {
-        Todo todo = todoRepository.findByTodoId(todoId);
-
-//        테스트 용
-//        Todo todo = todoRepository.findById(todoId)
-//            .orElseThrow(() -> new InvalidRequestException("Todo not found"));
+        Todo todo = todoRepository.findById(todoId)
+            .orElseThrow(() -> new InvalidRequestException("Todo not found"));
 
         List<Manager> managerList = managerRepository.findByTodoIdWithUser(todo.getId());
 
